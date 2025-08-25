@@ -27,6 +27,7 @@ from azure.monitor.opentelemetry._constants import (
     _AZURE_VM_RESOURCE_DETECTOR_NAME,
     _FULLY_SUPPORTED_INSTRUMENTED_LIBRARIES,
     _PREVIEW_INSTRUMENTED_LIBRARIES,
+    BROWSER_SDK_LOADER_CONFIG_ARG,
     DISABLE_LOGGING_ARG,
     DISABLE_METRICS_ARG,
     DISABLE_TRACING_ARG,
@@ -76,6 +77,7 @@ def _get_configurations(**kwargs) -> Dict[str, ConfigurationValue]:
     _default_span_processors(configurations)
     _default_enable_live_metrics(configurations)
     _default_views(configurations)
+    _default_browser_sdk_loader(configurations)
 
     return configurations
 
@@ -201,3 +203,8 @@ def _is_instrumentation_enabled(configurations, lib_name):
     if "enabled" not in library_options:
         return False
     return library_options["enabled"] is True
+
+
+def _default_browser_sdk_loader(configurations):
+    """Set default browser SDK loader configuration."""
+    configurations.setdefault(BROWSER_SDK_LOADER_CONFIG_ARG, {})
