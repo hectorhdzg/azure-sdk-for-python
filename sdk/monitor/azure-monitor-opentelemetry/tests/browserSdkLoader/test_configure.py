@@ -38,6 +38,9 @@ class TestConfigure(unittest.TestCase):
         "azure.monitor.opentelemetry._configure._send_attach_warning",
     )
     @patch(
+        "azure.monitor.opentelemetry._configure._setup_browser_sdk_loader",
+    )
+    @patch(
         "azure.monitor.opentelemetry._configure._setup_instrumentations",
     )
     @patch(
@@ -59,6 +62,7 @@ class TestConfigure(unittest.TestCase):
         metrics_mock,
         live_metrics_mock,
         instrumentation_mock,
+        browser_sdk_loader_mock,
         detect_attach_mock,
     ):
         kwargs = {
@@ -70,6 +74,7 @@ class TestConfigure(unittest.TestCase):
         metrics_mock.assert_called_once()
         live_metrics_mock.assert_not_called()
         instrumentation_mock.assert_called_once()
+        browser_sdk_loader_mock.assert_called_once()
         detect_attach_mock.assert_called_once()
 
     @patch(
@@ -766,3 +771,173 @@ class TestConfigure(unittest.TestCase):
         is_on_functions_mock.return_value = True
         _send_attach_warning()
         mock_diagnostics.warning.assert_not_called()
+    @patch(
+        "azure.monitor.opentelemetry._configure._setup_browser_sdk_loader",
+    )
+    @patch(
+        "azure.monitor.opentelemetry._configure._get_configurations",
+    )
+    @patch(
+        "azure.monitor.opentelemetry._configure._setup_tracing",
+    )
+    @patch(
+        "azure.monitor.opentelemetry._configure._setup_logging",
+    )
+    @patch(
+        "azure.monitor.opentelemetry._configure._setup_metrics",
+    )
+    def test_configure_azure_monitor_browser_sdk_loader_config(
+        self,
+        metrics_mock,
+        logging_mock,
+        tracing_mock,
+        config_mock,
+        browser_sdk_loader_mock,
+    ):
+        """Test configure_azure_monitor with browser_sdk_loader_config parameter."""
+        browser_config = {
+            "enabled": True,
+            "connection_string": "InstrumentationKey=frontend-key",
+            "instrument_user_interactions": True,
+        }
+        
+        expected_configurations = {
+            "connection_string": "InstrumentationKey=backend-key",
+            "browser_sdk_loader_config": browser_config,
+            "disable_tracing": False,
+            "disable_logging": False,
+            "disable_metrics": False,
+            "enable_live_metrics": False,
+            "resource": TEST_RESOURCE,
+            "sampling_ratio": 1.0,
+            "span_processors": [],
+            "views": [],
+        }
+        
+        config_mock.return_value = expected_configurations
+        
+        configure_azure_monitor(
+            connection_string="InstrumentationKey=12345678-1234-1234-1234-123456789012",
+            browser_sdk_loader_config=browser_config
+        )
+        
+        # Verify that _setup_browser_sdk_loader was called with configurations
+        browser_sdk_loader_mock.assert_called_once_with(expected_configurations)
+
+    @patch(
+        "azure.monitor.opentelemetry._configure._setup_browser_sdk_loader",
+    )
+    @patch(
+        "azure.monitor.opentelemetry._configure._get_configurations",
+    )
+    @patch(
+        "azure.monitor.opentelemetry._configure._setup_tracing",
+    )
+    @patch(
+        "azure.monitor.opentelemetry._configure._setup_logging",
+    )
+    @patch(
+        "azure.monitor.opentelemetry._configure._setup_metrics",
+    )
+    def test_configure_azure_monitor_browser_sdk_loader_disabled(
+        self,
+        metrics_mock,
+        logging_mock,
+        tracing_mock,
+        config_mock,
+        browser_sdk_loader_mock,
+    ):
+        """Test configure_azure_monitor with browser_sdk_loader_config disabled."""
+        browser_config = {"enabled": False}
+        
+        expected_configurations = {
+            "connection_string": "InstrumentationKey=test-key",
+            "browser_sdk_loader_config": browser_config,
+            "disable_tracing": False,
+            "disable_logging": False,
+            "disable_metrics": False,
+            "enable_live_metrics": False,
+            "resource": TEST_RESOURCE,
+            "sampling_ratio": 1.0,
+            "span_processors": [],
+            "views": [],
+        }
+        
+        config_mock.return_value = expected_configurations
+        
+        configure_azure_monitor(
+            connection_string="InstrumentationKey=12345678-1234-1234-1234-123456789012",
+            browser_sdk_loader_config=browser_config
+        )
+        
+        # Verify that _setup_browser_sdk_loader was still called (it handles the disabled check internally)
+        browser_sdk_loader_mock.assert_called_once_with(expected_configurations)
+
+    def test_setup_browser_sdk_loader_disabled(self):
+        """Test _setup_browser_sdk_loader when disabled via configuration."""
+        from azure.monitor.opentelemetry._configure import _setup_browser_sdk_loader
+        from azure.monitor.opentelemetry._constants import BROWSER_SDK_LOADER_CONFIG_ARG
+        
+        configurations = {
+            BROWSER_SDK_LOADER_CONFIG_ARG: {"enabled": False},
+            "connection_string": "InstrumentationKey=test-key"
+        }
+        
+        # Should not raise an exception and should return early
+        with patch("azure.monitor.opentelemetry._browser_sdk_loader.setup_snippet_injection") as mock_setup:
+            _setup_browser_sdk_loader(configurations)
+            mock_setup.assert_not_called()
+
+    def test_setup_browser_sdk_loader_no_connection_string(self):
+        """Test _setup_browser_sdk_loader when no connection string provided."""
+        from azure.monitor.opentelemetry._configure import _setup_browser_sdk_loader
+        from azure.monitor.opentelemetry._constants import BROWSER_SDK_LOADER_CONFIG_ARG
+        
+        configurations = {
+            BROWSER_SDK_LOADER_CONFIG_ARG: {"enabled": True},
+            # No connection_string provided
+        }
+        
+        # Should not raise an exception and should return early
+        with patch("azure.monitor.opentelemetry._configure.setup_snippet_injection") as mock_setup:
+            _setup_browser_sdk_loader(configurations)
+            mock_setup.assert_not_called()
+
+    @patch("azure.monitor.opentelemetry._configure.setup_snippet_injection")
+    def test_setup_browser_sdk_loader_with_separate_connection_string(self, mock_setup):
+        """Test _setup_browser_sdk_loader with separate connection string in config."""
+        from azure.monitor.opentelemetry._configure import _setup_browser_sdk_loader
+        from azure.monitor.opentelemetry._constants import BROWSER_SDK_LOADER_CONFIG_ARG
+        
+        browser_config = {
+            "enabled": True,
+            "connection_string": "InstrumentationKey=frontend-key"
+        }
+        
+        configurations = {
+            BROWSER_SDK_LOADER_CONFIG_ARG: browser_config,
+            "connection_string": "InstrumentationKey=backend-key"
+        }
+        
+        _setup_browser_sdk_loader(configurations)
+        
+        # Should be called with the frontend connection string from browser config
+        mock_setup.assert_called_once_with("InstrumentationKey=frontend-key", browser_config)
+
+    @patch("azure.monitor.opentelemetry._configure.setup_snippet_injection")
+    def test_setup_browser_sdk_loader_fallback_connection_string(self, mock_setup):
+        """Test _setup_browser_sdk_loader falls back to main connection string."""
+        from azure.monitor.opentelemetry._configure import _setup_browser_sdk_loader
+        from azure.monitor.opentelemetry._constants import BROWSER_SDK_LOADER_CONFIG_ARG
+        
+        browser_config = {"enabled": True}  # No connection_string in browser config
+        
+        configurations = {
+            BROWSER_SDK_LOADER_CONFIG_ARG: browser_config,
+            "connection_string": "InstrumentationKey=backend-key"
+        }
+        
+        _setup_browser_sdk_loader(configurations)
+        
+        # Should be called with the main connection string as fallback
+        mock_setup.assert_called_once_with("InstrumentationKey=backend-key", browser_config)
