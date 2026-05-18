@@ -50,6 +50,11 @@ from azure.monitor.opentelemetry.exporter._utils import (
     _get_auth_policy,
     _get_sha256_hash,
 )
+from azure.monitor.opentelemetry.exporter.export._rate_limiter import (
+    _TokenBucketRateLimiter,
+    _DEFAULT_RATE_LIMIT,
+    _DEFAULT_BURST_CAPACITY,
+)
 from azure.monitor.opentelemetry.exporter.statsbeat._state import (
     get_statsbeat_initial_success,
     get_statsbeat_shutdown,
@@ -144,6 +149,11 @@ class BaseExporter:
         )  # If set, indicates the exporter is instantiated via Azure monitor OpenTelemetry distro. Versions corresponds to distro version.
         # specifies whether current exporter is used for collection of instrumentation metrics
         self._instrumentation_collection = kwargs.get("instrumentation_collection", False)
+        # Client-side rate limiter to prevent overwhelming the ingestion endpoint
+        self._rate_limiter = _TokenBucketRateLimiter(
+            rate=kwargs.get("transmit_rate_limit", _DEFAULT_RATE_LIMIT),
+            capacity=kwargs.get("transmit_burst_capacity", _DEFAULT_BURST_CAPACITY),
+        )
 
         config = AzureMonitorClientConfiguration(self._endpoint, **kwargs)
         policies = [
@@ -260,6 +270,13 @@ class BaseExporter:
         :rtype: ~azure.monitor.opentelemetry.exporter.export._base._ExportResult
         """
         if len(envelopes) > 0:
+            # Client-side rate limiting to prevent overwhelming the ingestion endpoint
+            if not self._rate_limiter.consume():
+                logger.warning(
+                    "Rate limit exceeded, deferring %d envelopes to storage.",
+                    len(envelopes),
+                )
+                return ExportResult.FAILED_RETRYABLE
             result = ExportResult.SUCCESS
             # Track whether or not exporter has successfully reached ingestion
             # Currently only used for statsbeat exporter to detect shutdown cases

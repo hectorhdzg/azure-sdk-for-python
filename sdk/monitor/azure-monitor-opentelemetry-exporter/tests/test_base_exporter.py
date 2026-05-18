@@ -733,6 +733,16 @@ class TestBaseExporter(unittest.TestCase):
             self.assertEqual(post.call_count, 1)
             self.assertEqual(self._base.client._config.host, prev_host)
 
+    def test_transmit_rate_limited(self):
+        """When the rate limiter is exhausted, _transmit returns FAILED_RETRYABLE."""
+        # Exhaust the rate limiter
+        while self._base._rate_limiter.consume():
+            pass
+        result = self._base._transmit(self._envelopes_to_export)
+        self.assertEqual(result, ExportResult.FAILED_RETRYABLE)
+        # Restore tokens for subsequent tests
+        self._base._rate_limiter._tokens = self._base._rate_limiter._capacity
+
     def test_transmit_request_error(self):
         with mock.patch.object(AzureMonitorClient, "track", throw(ServiceRequestError, message="error")):
             result = self._base._transmit(self._envelopes_to_export)
