@@ -1,0 +1,11 @@
+{
+    "CrossLanguagePackageId": "_Specs_.Azure.ClientGenerator.Core.ResponseReplacement",
+    "CrossLanguageDefinitionId": {
+        "specs.azure.clientgenerator.core.responsereplacement.models.Widget": "_Specs_.Azure.ClientGenerator.Core.ResponseReplacement.Widget",
+        "specs.azure.clientgenerator.core.responsereplacement.ResponseReplacementClient.void_response": "_Specs_.Azure.ClientGenerator.Core.ResponseReplacement.voidResponse",
+        "specs.azure.clientgenerator.core.responsereplacement.aio.ResponseReplacementClient.void_response": "_Specs_.Azure.ClientGenerator.Core.ResponseReplacement.voidResponse",
+        "specs.azure.clientgenerator.core.responsereplacement.ResponseReplacementClient.bytes_response": "_Specs_.Azure.ClientGenerator.Core.ResponseReplacement.bytesResponse",
+        "specs.azure.clientgenerator.core.responsereplacement.aio.ResponseReplacementClient.bytes_response": "_Specs_.Azure.ClientGenerator.Core.ResponseReplacement.bytesResponse"
+    },
+    "CrossLanguageVersion": "8ede01c1a1b9"
+}

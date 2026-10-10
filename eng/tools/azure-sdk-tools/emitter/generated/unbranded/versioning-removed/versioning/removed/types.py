@@ -1,0 +1,42 @@
+# coding=utf-8
+
+from typing import TYPE_CHECKING, Union
+from typing_extensions import Required, TypedDict
+
+if TYPE_CHECKING:
+    from . import _unions
+    from .models import EnumV2, EnumV3
+
+
+class ModelV2(TypedDict, total=False):
+    """ModelV2.
+
+    :ivar prop: Required.
+    :vartype prop: str
+    :ivar enumProp: Required. "enumMemberV2"
+    :vartype enumProp: Union[str, "EnumV2"]
+    :ivar unionProp: Required. Is either a str type or a float type.
+    :vartype unionProp: "_unions.UnionV2"
+    """
+
+    prop: Required[str]
+    """Required."""
+    enumProp: Required[Union[str, "EnumV2"]]
+    """Required. \"enumMemberV2\""""
+    unionProp: Required["_unions.UnionV2"]
+    """Required. Is either a str type or a float type."""
+
+
+class ModelV3(TypedDict, total=False):
+    """ModelV3.
+
+    :ivar id: Required.
+    :vartype id: str
+    :ivar enumProp: Required. Known values are: "enumMemberV1" and "enumMemberV2Preview".
+    :vartype enumProp: Union[str, "EnumV3"]
+    """
+
+    id: Required[str]
+    """Required."""
+    enumProp: Required[Union[str, "EnumV3"]]
+    """Required. Known values are: \"enumMemberV1\" and \"enumMemberV2Preview\"."""
