@@ -6,7 +6,7 @@
 # Changes may cause incorrect behavior and will be lost if the code is regenerated.
 # --------------------------------------------------------------------------
 
-from typing import Union
+from typing import TypeAlias, Union
 
-UnionV2 = Union[str, int]
-UnionV1 = Union[str, int]
+UnionV2: TypeAlias = Union[str, int]
+UnionV1: TypeAlias = Union[str, int]

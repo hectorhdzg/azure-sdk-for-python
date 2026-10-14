@@ -1,0 +1,8 @@
+{
+    "CrossLanguagePackageId": "_Specs_.Azure.Core.ApiVersionOverride",
+    "CrossLanguageDefinitionId": {
+        "specs.azure.core.apiversionoverride.operations.LegacyClientOperations.get": "_Specs_.Azure.Core.ApiVersionOverride.LegacyClient.get",
+        "specs.azure.core.apiversionoverride.aio.operations.LegacyClientOperations.get": "_Specs_.Azure.Core.ApiVersionOverride.LegacyClient.get"
+    },
+    "CrossLanguageVersion": "b73b979c9623"
+}

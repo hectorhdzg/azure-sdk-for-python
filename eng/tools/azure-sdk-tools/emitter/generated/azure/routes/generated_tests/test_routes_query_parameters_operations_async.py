@@ -81,6 +81,17 @@ class TestRoutesQueryParametersOperationsAsync(RoutesClientTestBaseAsync):
 
     @RoutesPreparer()
     @recorded_by_proxy_async
+    async def test_query_parameters_query_expansion_standard_model(self, routes_endpoint):
+        client = self.create_async_client(endpoint=routes_endpoint)
+        response = await client.query_parameters.query_expansion.standard.model(
+            param={"field": "str", "value": "str"},
+        )
+
+        # please add some check logic here by yourself
+        # ...
+
+    @RoutesPreparer()
+    @recorded_by_proxy_async
     async def test_query_parameters_query_expansion_explode_primitive(self, routes_endpoint):
         client = self.create_async_client(endpoint=routes_endpoint)
         response = await client.query_parameters.query_expansion.explode.primitive(
@@ -107,6 +118,17 @@ class TestRoutesQueryParametersOperationsAsync(RoutesClientTestBaseAsync):
         client = self.create_async_client(endpoint=routes_endpoint)
         response = await client.query_parameters.query_expansion.explode.record(
             param={"str": 0},
+        )
+
+        # please add some check logic here by yourself
+        # ...
+
+    @RoutesPreparer()
+    @recorded_by_proxy_async
+    async def test_query_parameters_query_expansion_explode_model(self, routes_endpoint):
+        client = self.create_async_client(endpoint=routes_endpoint)
+        response = await client.query_parameters.query_expansion.explode.model(
+            param={"field": "str", "value": "str"},
         )
 
         # please add some check logic here by yourself
@@ -147,6 +169,17 @@ class TestRoutesQueryParametersOperationsAsync(RoutesClientTestBaseAsync):
 
     @RoutesPreparer()
     @recorded_by_proxy_async
+    async def test_query_parameters_query_continuation_standard_model(self, routes_endpoint):
+        client = self.create_async_client(endpoint=routes_endpoint)
+        response = await client.query_parameters.query_continuation.standard.model(
+            param={"field": "str", "value": "str"},
+        )
+
+        # please add some check logic here by yourself
+        # ...
+
+    @RoutesPreparer()
+    @recorded_by_proxy_async
     async def test_query_parameters_query_continuation_explode_primitive(self, routes_endpoint):
         client = self.create_async_client(endpoint=routes_endpoint)
         response = await client.query_parameters.query_continuation.explode.primitive(
@@ -173,6 +206,17 @@ class TestRoutesQueryParametersOperationsAsync(RoutesClientTestBaseAsync):
         client = self.create_async_client(endpoint=routes_endpoint)
         response = await client.query_parameters.query_continuation.explode.record(
             param={"str": 0},
+        )
+
+        # please add some check logic here by yourself
+        # ...
+
+    @RoutesPreparer()
+    @recorded_by_proxy_async
+    async def test_query_parameters_query_continuation_explode_model(self, routes_endpoint):
+        client = self.create_async_client(endpoint=routes_endpoint)
+        response = await client.query_parameters.query_continuation.explode.model(
+            param={"field": "str", "value": "str"},
         )
 
         # please add some check logic here by yourself

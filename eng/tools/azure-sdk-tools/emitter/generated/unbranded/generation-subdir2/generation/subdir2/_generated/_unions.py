@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from typing import Union
+from typing import TypeAlias, Union
 
-UnionV2 = Union[str, int]
-UnionV1 = Union[str, int]
+UnionV2: TypeAlias = Union[str, int]
+UnionV1: TypeAlias = Union[str, int]
